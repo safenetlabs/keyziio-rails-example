@@ -1,0 +1,8 @@
+div
+  = form_for @post do |f|
+    .form-group
+      = f.label 'Title'
+      = f.text_field :title, autofocus: true, class: 'form-control'
+    .form-group
+      = f.text_area :content, class: 'form-control', rows: 10
+    = f.submit 'Save', class: 'btn btn-primary'

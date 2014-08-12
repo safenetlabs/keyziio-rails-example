@@ -1,0 +1,14 @@
+h1 Your Posts
+= link_to 'New', new_post_path, class: 'btn btn-primary'
+dl
+- @posts.each do |post|
+  dt = post.title
+  dl
+    div
+      = post.content
+      br
+      p
+      = link_to 'Edit', edit_post_path(post), class: 'btn btn-primary'
+      = button_to 'Delete', post_path(post), method: :delete, class: 'btn btn-primary', data: {confirm: 'Are you sure?'}
+
+
