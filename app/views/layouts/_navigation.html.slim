@@ -11,3 +11,6 @@ nav.navbar.navbar-inverse.navbar-fixed-top
     .collapse.navbar-collapse
       ul.nav.navbar-nav
         == render 'layouts/navigation_links'
+      - if user_signed_in?
+        p.navbar-text.navbar-right Signed in as #{current_user.email}
+
