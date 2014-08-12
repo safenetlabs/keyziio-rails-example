@@ -19,4 +19,4 @@ module PunditHelper
 
 end
 
-ApplicationController.send :include, PunditHelper
+ActionController::Base.send :include, PunditHelper
