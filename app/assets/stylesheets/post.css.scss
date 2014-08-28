@@ -1,3 +1,21 @@
 // Place all the styles related to the post controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+table {
+  table-layout: fixed;
+  th:nth-child(2){
+    width:40%
+  }
+  th:nth-child(3){
+    width:40%
+  }
+  td {
+    vertical-align: text-top;
+    padding: 5px;
+  }
+  td:nth-child(3){
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+}

@@ -1,3 +1,17 @@
+GIT
+  remote: git://github.com/safenetlabs/ruby-keyziio-agent.git
+  revision: 0d2b339e0c3234e8199a4eea7fbabf674dae3b14
+  specs:
+    keyziio (0.0.1)
+      rest-client
+
+GIT
+  remote: git://github.com/safenetlabs/ruby-keyziio-client.git
+  revision: 5eaa2ac8f2b453402ef88698234b2813c549470b
+  specs:
+    keyziio_client (0.0.1)
+      rest-client
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -91,6 +105,7 @@ GEM
     mini_portile (0.6.0)
     minitest (5.4.0)
     multi_json (1.10.1)
+    netrc (0.7.7)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
     orm_adapter (0.5.0)
@@ -129,6 +144,9 @@ GEM
     rake (10.3.2)
     rdoc (4.1.1)
       json (~> 1.4)
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     rspec-core (3.0.3)
       rspec-support (~> 3.0.0)
     rspec-expectations (3.0.3)
@@ -213,6 +231,8 @@ DEPENDENCIES
   faker
   jbuilder (~> 2.0)
   jquery-rails
+  keyziio!
+  keyziio_client!
   launchy
   pg
   puma

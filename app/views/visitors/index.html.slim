@@ -1,6 +1,35 @@
-h3
-  | Welcome
-p
-  = link_to 'Users:', users_path
-  = User.count
-  |  registered
+h3 Keyzi.io demonstration application
+p This is a simple blogging application that implements keyzi.io for encryption/decryption
+p add the following lines to your gemfile
+pre gem 'keyziio', github: "safenetlabs/ruby-keyziio-agent"
+    gem 'keyziio_client', github: "safenetlabs/ruby-keyziio-client"
+p The posts model only stores the encrypted content - and model callbacks are implemented to encrypt and decrypt content
+  In order to configure the application you should add your keyzi.io token to secrets.yml
+  and create an instance of the agent that communicates with the keyzi.io server in an initializer - for example keyziio_agent.rb
+pre module KeyziioAgent
+      @kza = Keyziio::Agent.new(Rails.application.secrets.keyziio_id)
+      def self.kza
+        @kza
+      end
+    end
+p In the posts model we implement call backs :before_save and :after_find to handle the encryption and decryption
+pre before_save :encrypt
+    def encrypt
+      kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+      kzuser = KZClient.new
+      kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+      self.content = kzuser.encrypt_buffer(content, 'u3_key1')
+    end
+pre after_find :decrypt
+    def decrypt
+      kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+      kzuser = KZClient.new
+      kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+      # for the demonstration we want to display the encrypted and decrypted content side by side
+      # you would probably not want to do that in your application
+      self.encrypted_content = content
+      self.content = kzuser.decrypt_buffer(content)
+    end
+p in your application you may want to cache the results of KeziioAgent.kza.get_user(self.user.id) after user login for performance.  Users keys will be held in the cache for the duration of the users session.
+p You can get the two gem files from here
+=link_to 'safenet labs repository', safenet_labs_repository_url

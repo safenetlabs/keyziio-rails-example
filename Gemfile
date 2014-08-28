@@ -16,8 +16,8 @@ gem 'puma'
 gem 'pundit'
 gem 'slim-rails'
 gem 'rails_12factor', group: :production
-gem 'keyziio'
-gem 'keyziio_client'
+gem 'keyziio', github: "safenetlabs/ruby-keyziio-agent"
+gem 'keyziio_client', github: "safenetlabs/ruby-keyziio-client"
 
 group :development do
   gem 'better_errors'

@@ -1,14 +1,20 @@
 h1 Your Posts
+table
+  thead
+    tr
+      th Title
+      th Readable
+      th Database Copy
+      th colspan="2" Actions
+  tbody
+    - @posts.each do |post|
+      tr
+        td =post.title
+        td =post.content
+        td =post.encrypted_content
+        td =link_to 'Edit', edit_post_path(post), class: 'btn btn-default'
+        td =button_to 'Delete', post_path(post), method: :delete, class: 'btn btn-danger', data: {confirm: 'Are you sure?'}
 = link_to 'New', new_post_path, class: 'btn btn-primary'
-dl
-- @posts.each do |post|
-  dt = post.title
-  dl
-    div
-      = post.encrypted_content
-      br
-      p
-      = link_to 'Edit', edit_post_path(post), class: 'btn btn-primary'
-      = button_to 'Delete', post_path(post), method: :delete, class: 'btn btn-primary', data: {confirm: 'Are you sure?'}
+
 
 
