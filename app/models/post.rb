@@ -13,8 +13,11 @@ class Post < ActiveRecord::Base
   after_find :decrypt
 
   def encrypt
-    kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-    kzuser = KZClient.new
+    #kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+    kzuser = KZClient.new(self.user.keychain_id, self.user.access_token)
+    # get session public key from the keyziio client lib
+    session_key = kzuser.get_session_key
+
     kzuser.inject_user_key(kzu['private_key'], kzu['id'])
     self.content = kzuser.encrypt_buffer(content, 'u3_key1')
   end
@@ -26,6 +29,21 @@ class Post < ActiveRecord::Base
     self.encrypted_content = content
     self.content = kzuser.decrypt_buffer(content)
   end
+
+  # def encrypt
+  #   kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+  #   kzuser = KZClient.new
+  #   kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+  #   self.content = kzuser.encrypt_buffer(content, 'u3_key1')
+  # end
+  #
+  # def decrypt
+  #   kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+  #   kzuser = KZClient.new
+  #   kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+  #   self.encrypted_content = content
+  #   self.content = kzuser.decrypt_buffer(content)
+  # end
 
 
 

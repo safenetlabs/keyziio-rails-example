@@ -40,9 +40,12 @@ ActiveRecord::Schema.define(version: 20140828125929) do
     t.datetime "updated_at"
     t.string   "name"
     t.integer  "role"
+    t.uuid     "keychain_id"
+    t.text     "access_token"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["keychain_id"], name: "unique_keychain_id", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
 end
