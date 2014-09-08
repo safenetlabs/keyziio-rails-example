@@ -1,6 +1,8 @@
 # require 'keyziio'
 # require 'keyziio_client'
 # require 'json'
+require 'base64'
+require 'securerandom'
 
 class Post < ActiveRecord::Base
   belongs_to :user
@@ -14,20 +16,29 @@ class Post < ActiveRecord::Base
 
   def encrypt
     #kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-    kzuser = KZClient.new(self.user.keychain_id, self.user.access_token)
-    # get session public key from the keyziio client lib
-    session_key = kzuser.get_session_key
-
-    kzuser.inject_user_key(kzu['private_key'], kzu['id'])
-    self.content = kzuser.encrypt_buffer(content, 'u3_key1')
+    # kzuser = KZClient.new(self.user.keychain_id, self.user.access_token)
+    # # get session public key from the keyziio client lib
+    # session_key = kzuser.get_session_key
+    #
+    # kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+    user_key = KeyziioCache.cache.read(self.user.keychain_id)
+    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(user_key))
+    self.content = kz_user.encrypt_buffer(content, SecureRandom.uuid)
   end
 
   def decrypt
-    kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-    kzuser = KZClient.new
-    kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+    # kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
+    # kzuser = KZClient.new
+    # kzuser.inject_user_key(kzu['private_key'], kzu['id'])
+
     self.encrypted_content = content
-    self.content = kzuser.decrypt_buffer(content)
+    user_key = KeyziioCache.cache.read(self.user.keychain_id)
+    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(user_key))
+    begin
+      self.content = kz_user.decrypt_buffer(content) if kz_user
+    rescue RestClient::InternalServerError
+      true
+    end
   end
 
   # def encrypt
