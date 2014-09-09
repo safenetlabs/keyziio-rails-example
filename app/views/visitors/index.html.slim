@@ -12,24 +12,26 @@ pre module KeyziioAgent
         @kza
       end
     end
+
+p The user model implements call back :after_create to setup user's keychain on the Keyziio server. On create and each sign in,
+  the user's keychain key parts are request from Keyziio Agent running on the ASP's app server and the Keyziio server. The two keyparts are
+  joined to construct the user's keychain key and store it in a memory cache. This cached key is used to unwrap data keys during encrypt and decrypt operations.
+  The key is stored only for the current session and purged from the cache on sign out.
+
 p In the posts model we implement call backs :before_save and :after_find to handle the encryption and decryption
 pre before_save :encrypt
     def encrypt
-      kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-      kzuser = KZClient.new
-      kzuser.inject_user_key(kzu['private_key'], kzu['id'])
-      self.content = kzuser.encrypt_buffer(content, 'u3_key1')
+      keychain_key = KeyziioCache.cache.read(self.user.keychain_id)
+      kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(keychain_key))
+      self.content = kz_user.encrypt_buffer(content, self.title + '_key')
     end
 pre after_find :decrypt
     def decrypt
-      kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-      kzuser = KZClient.new
-      kzuser.inject_user_key(kzu['private_key'], kzu['id'])
-      # for the demonstration we want to display the encrypted and decrypted content side by side
-      # you would probably not want to do that in your application
       self.encrypted_content = content
-      self.content = kzuser.decrypt_buffer(content)
+      # Get the keychain key from the memory cache
+      keychain_key = KeyziioCache.cache.read(self.user.keychain_id)
+      kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(keychain_key))
+      self.content = kz_user.decrypt_buffer(content) if kz_user
     end
-p in your application you may want to cache the results of KeziioAgent.kza.get_user(self.user.id) after user login for performance.  Users keys will be held in the cache for the duration of the users session.
 p You can get the two gem files from here
 =link_to 'safenet labs repository', safenet_labs_repository_url

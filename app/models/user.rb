@@ -24,10 +24,10 @@ class User < ActiveRecord::Base
       wrapped_key_part = KeyziioAgent.kza.wrap_key_part(JSON.parse(keychain_response)['keypart'], session_key)
 
       # Now, inject wrapped key in the client
-      user_key = kz_user.construct_user_key(wrapped_key_part)
+      keychain_key = kz_user.construct_keychain_key(wrapped_key_part)
 
       # Cache kz_user object
-      KeyziioCache.cache.write(self.keychain_id, user_key)
+      KeyziioCache.cache.write(self.keychain_id, keychain_key)
     end
   end
 
@@ -40,9 +40,6 @@ class User < ActiveRecord::Base
   def create_keyziio_user
     keychain_id = KeyziioAgent.kza.create_keychain(self.id)
     self.update_attributes(:keychain_id => keychain_id)
-    # access_token = KeyziioAgent.kza.get_client_token(self.keychain_id)
-    # self.update_attributes(:keychain_id => keychain_id, :access_token => access_token)
-    #self.after_database_authentication
     self.init_keyziio_client
   end
 

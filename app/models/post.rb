@@ -15,25 +15,17 @@ class Post < ActiveRecord::Base
   after_find :decrypt
 
   def encrypt
-    #kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-    # kzuser = KZClient.new(self.user.keychain_id, self.user.access_token)
-    # # get session public key from the keyziio client lib
-    # session_key = kzuser.get_session_key
-    #
-    # kzuser.inject_user_key(kzu['private_key'], kzu['id'])
-    user_key = KeyziioCache.cache.read(self.user.keychain_id)
-    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(user_key))
-    self.content = kz_user.encrypt_buffer(content, SecureRandom.uuid)
+    # Get keychain key from the memory cache
+    keychain_key = KeyziioCache.cache.read(self.user.keychain_id)
+    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(keychain_key))
+    self.content = kz_user.encrypt_buffer(content, self.title + '_key')
   end
 
   def decrypt
-    # kzu = JSON.parse(KeyziioAgent.kza.get_user(self.user.id))
-    # kzuser = KZClient.new
-    # kzuser.inject_user_key(kzu['private_key'], kzu['id'])
-
     self.encrypted_content = content
-    user_key = KeyziioCache.cache.read(self.user.keychain_id)
-    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(user_key))
+    # Get the keychain key from the memory cache
+    keychain_key = KeyziioCache.cache.read(self.user.keychain_id)
+    kz_user = KZClient.new(self.user.keychain_id, self.user.access_token, Base64.decode64(keychain_key))
     begin
       self.content = kz_user.decrypt_buffer(content) if kz_user
     rescue RestClient::InternalServerError
